@@ -88,11 +88,6 @@ output "cluster_iam_role_unique_id" {
   value       = try(aws_iam_role.cluster_role.unique_id, null)
 }
 
-output "cluster_addons" {
-  description = "Map of attribute maps for all EKS cluster addons enabled"
-  value       = aws_eks_addon.before_compute
-}
-
 output "cluster_identity_providers" {
   description = "Map of attribute maps for all EKS identity providers enabled"
   value       = aws_eks_identity_provider_config.indentity_provider
