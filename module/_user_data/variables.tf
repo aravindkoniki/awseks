@@ -1,3 +1,9 @@
+variable "create" {
+  description = "Determines whether to create user-data or not"
+  type        = bool
+  default     = true
+}
+
 variable "platform" {
   description = "Identifies if the OS platform is `bottlerocket`, `linux`, or `windows` based"
   type        = string
@@ -34,6 +40,14 @@ variable "cluster_auth_base64" {
   default     = ""
 }
 
+# Currently only used by AL2023 since it can be IPv4 or IPv6
+variable "cluster_service_cidr" {
+  description = "The CIDR block (IPv4 or IPv6) used by the cluster to assign Kubernetes service IP addresses. This is derived from the cluster itself"
+  type        = string
+  default     = ""
+}
+
+# Not used by AL2023
 variable "cluster_service_ipv4_cidr" {
   description = "The CIDR block to assign Kubernetes service IP addresses from. If you don't specify a block, Kubernetes assigns addresses from either the 10.100.0.0/16 or 172.20.0.0/16 CIDR blocks"
   type        = string
@@ -62,4 +76,26 @@ variable "user_data_template_path" {
   description = "Path to a local, custom user data template file to use when rendering user data"
   type        = string
   default     = ""
+}
+
+variable "cloudinit_pre_nodeadm" {
+  description = "Array of cloud-init document parts that are created before the nodeadm document part"
+  type = list(object({
+    content      = string
+    content_type = optional(string)
+    filename     = optional(string)
+    merge_type   = optional(string)
+  }))
+  default = []
+}
+
+variable "cloudinit_post_nodeadm" {
+  description = "Array of cloud-init document parts that are created after the nodeadm document part"
+  type = list(object({
+    content      = string
+    content_type = optional(string)
+    filename     = optional(string)
+    merge_type   = optional(string)
+  }))
+  default = []
 }
