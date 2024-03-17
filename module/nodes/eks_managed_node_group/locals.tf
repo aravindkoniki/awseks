@@ -54,6 +54,8 @@ locals {
   launch_template_id = var.launch_template_id
   # Change order to allow users to set version priority before using defaults
   launch_template_version = var.launch_template_version
+
+  tags = merge({ "ManagedBy" = "Terraform" }, var.tags)
 }
 
 

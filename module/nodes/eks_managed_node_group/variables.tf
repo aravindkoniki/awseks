@@ -41,6 +41,12 @@ variable "use_latest_ami_release_version" {
   default     = false
 }
 
+variable "use_custom_launch_template" {
+  description = "Determines whether to use a custom launch template or not. If set to `false`, EKS will use its own default launch template"
+  type        = bool
+  default     = true
+}
+
 variable "launch_template_id" {
   description = "The ID of an existing launch template to use. Required when `create_launch_template` = `false` and `use_custom_launch_template` = `true`"
   type        = string
@@ -51,6 +57,110 @@ variable "launch_template_version" {
   description = "Launch template version number. The default is `$Default`"
   type        = string
   default     = null
+}
+
+variable "cluster_name" {
+  description = "Name of associated EKS cluster"
+  type        = string
+  default     = null
+}
+
+variable "iam_role_permissions_boundary" {
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  type        = string
+  default     = null
+}
+
+variable "subnet_ids" {
+  description = "Identifiers of EC2 Subnets to associate with the EKS Node Group. These subnets must have the following resource tag: `kubernetes.io/cluster/CLUSTER_NAME`"
+  type        = list(string)
+  default     = null
+}
+
+variable "min_size" {
+  description = "Minimum number of instances/nodes"
+  type        = number
+  default     = 0
+}
+
+variable "max_size" {
+  description = "Maximum number of instances/nodes"
+  type        = number
+  default     = 3
+}
+
+variable "desired_size" {
+  description = "Desired number of instances/nodes"
+  type        = number
+  default     = 1
+}
+
+variable "name" {
+  description = "Name of the EKS managed node group"
+  type        = string
+  default     = ""
+}
+
+variable "ami_id" {
+  description = "The AMI from which to launch the instance. If not supplied, EKS will use its own default image"
+  type        = string
+  default     = ""
+}
+
+variable "ami_release_version" {
+  description = "AMI version of the EKS Node Group. Defaults to latest version for Kubernetes version"
+  type        = string
+  default     = null
+}
+
+variable "capacity_type" {
+  description = "Type of capacity associated with the EKS Node Group. Valid values: `ON_DEMAND`, `SPOT`"
+  type        = string
+  default     = "ON_DEMAND"
+}
+
+variable "disk_size" {
+  description = "Disk size in GiB for nodes. Defaults to `20`. Only valid when `use_custom_launch_template` = `false`"
+  type        = number
+  default     = null
+}
+
+variable "force_update_version" {
+  description = "Force version update if existing pods are unable to be drained due to a pod disruption budget issue"
+  type        = bool
+  default     = null
+}
+
+variable "labels" {
+  description = "Key-value map of Kubernetes labels. Only labels that are applied with the EKS API are managed by this argument. Other Kubernetes labels applied to the EKS Node Group will not be managed"
+  type        = map(string)
+  default     = null
+}
+
+variable "remote_access" {
+  description = "Configuration block with remote access settings. Only valid when `use_custom_launch_template` = `false`"
+  type        = any
+  default     = {}
+}
+
+variable "taints" {
+  description = "The Kubernetes taints to be applied to the nodes in the node group. Maximum of 50 taints per node group"
+  type        = any
+  default     = {}
+}
+
+variable "update_config" {
+  description = "Configuration block of settings for max unavailable resources during node group updates"
+  type        = map(string)
+  default = {
+    max_unavailable_percentage = 33
+  }
+}
+
+variable "timeouts" {
+  description = "Create, update, and delete timeout configurations for the node group"
+  type        = map(string)
+  default     = {}
 }
 
 # Tags
