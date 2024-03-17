@@ -18,14 +18,15 @@ locals {
       cluster_endpoint    = var.cluster_endpoint
       cluster_auth_base64 = var.cluster_auth_base64
 
-      # Required by AL2023
-      cluster_service_cidr = var.cluster_service_cidr
+      cluster_service_cidr = local.cluster_service_cidr
+      cluster_ip_family    = var.cluster_ip_family
+      # Bottlerocket
+      cluster_dns_ip = try(cidrhost(local.cluster_service_cidr, 10), "")
 
       # Optional
-      cluster_service_ipv4_cidr = var.cluster_service_ipv4_cidr != null ? var.cluster_service_ipv4_cidr : ""
-      bootstrap_extra_args      = var.bootstrap_extra_args
-      pre_bootstrap_user_data   = var.pre_bootstrap_user_data
-      post_bootstrap_user_data  = var.post_bootstrap_user_data
+      bootstrap_extra_args     = var.bootstrap_extra_args
+      pre_bootstrap_user_data  = var.pre_bootstrap_user_data
+      post_bootstrap_user_data = var.post_bootstrap_user_data
     }
   ))
 
@@ -43,7 +44,21 @@ locals {
       user_data = var.create && var.platform == "windows" && (var.enable_bootstrap_user_data || var.user_data_template_path != "" || var.pre_bootstrap_user_data != "") ? local.user_data : ""
     }
   }
+
+  cluster_service_cidr = try(coalesce(var.cluster_service_ipv4_cidr, var.cluster_service_cidr), "")
 }
+
+resource "null_resource" "validate_cluster_service_cidr" {
+  lifecycle {
+    precondition {
+      # The length 6 is currently arbitrary, but it's a safe bet that the CIDR will be longer than that
+      # The main point is that a value needs to be provided when `create = true`
+      condition     = var.create ? length(local.cluster_service_cidr) > 6 : true
+      error_message = "`cluster_service_cidr` is required when `create = true`."
+    }
+  }
+}
+
 
 # https://github.com/aws/containers-roadmap/issues/596#issuecomment-675097667
 # Managed nodegroup data must in MIME multi-part archive format,
