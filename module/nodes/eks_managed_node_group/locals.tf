@@ -55,6 +55,11 @@ locals {
   # Change order to allow users to set version priority before using defaults
   launch_template_version = var.launch_template_version
 
+  iam_role_policy_prefix = "arn:${data.aws_partition.current.partition}:iam::aws:policy"
+
+  ipv4_cni_policy = { for k, v in { AmazonEKS_CNI_Policy = "${local.iam_role_policy_prefix}/AmazonEKS_CNI_Policy" } : k => v if var.iam_role_attach_cni_policy && var.cluster_ip_family == "ipv4" }
+  ipv6_cni_policy = { for k, v in { AmazonEKS_CNI_IPv6_Policy = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/AmazonEKS_CNI_IPv6_Policy" } : k => v if var.iam_role_attach_cni_policy && var.cluster_ip_family == "ipv6" }
+
   tags = merge({ "ManagedBy" = "Terraform" }, var.tags)
 }
 

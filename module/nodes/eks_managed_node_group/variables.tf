@@ -163,6 +163,48 @@ variable "timeouts" {
   default     = {}
 }
 
+variable "iam_role_attach_cni_policy" {
+  description = "Whether to attach the `AmazonEKS_CNI_Policy`/`AmazonEKS_CNI_IPv6_Policy` IAM policy to the IAM IAM role. WARNING: If set `false` the permissions must be assigned to the `aws-node` DaemonSet pods via another method or nodes will not be able to join the cluster"
+  type        = bool
+  default     = true
+}
+
+variable "cluster_ip_family" {
+  description = "The IP family used to assign Kubernetes pod and service addresses. Valid values are `ipv4` (default) and `ipv6`"
+  type        = string
+  default     = "ipv4"
+}
+
+variable "iam_role_additional_policies" {
+  description = "Additional policies to be added to the IAM role"
+  type        = map(string)
+  default     = {}
+}
+
+variable "create_placement_group" {
+  description = "Determines whether a placement group is created & used by the nodegroup"
+  type        = bool
+  default     = false
+}
+
+variable "placement_group_strategy" {
+  description = "The placement group strategy"
+  type        = string
+  default     = "cluster"
+}
+
+variable "create_schedule" {
+  description = "Determines whether to create autoscaling group schedule or not"
+  type        = bool
+  default     = true
+}
+
+variable "schedules" {
+  description = "Map of autoscaling group schedule to create"
+  type        = map(any)
+  default     = {}
+}
+
 # Tags
 variable "tags" {
   description = "A mapping of tags to assign to the resource."

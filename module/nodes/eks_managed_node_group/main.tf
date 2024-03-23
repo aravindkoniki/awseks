@@ -79,3 +79,28 @@ resource "aws_eks_node_group" "node_group" {
 
   tags = merge(local.tags, { Name = var.name })
 }
+
+# Placement Group
+resource "aws_placement_group" "placement_group" {
+  count    = var.create && (var.enable_efa_support || var.create_placement_group) ? 1 : 0
+  name     = "${var.cluster_name}-${var.name}"
+  strategy = var.placement_group_strategy
+  tags     = local.tags
+}
+
+# Autoscaling Group Schedule
+resource "aws_autoscaling_schedule" "autoscaling" {
+  for_each               = { for k, v in var.schedules : k => v if var.create && var.create_schedule }
+  scheduled_action_name  = each.key
+  autoscaling_group_name = aws_eks_node_group.node_group[0].resources[0].autoscaling_groups[0].name
+  min_size               = try(each.value.min_size, null)
+  max_size               = try(each.value.max_size, null)
+  desired_capacity       = try(each.value.desired_size, null)
+  start_time             = try(each.value.start_time, null)
+  end_time               = try(each.value.end_time, null)
+  time_zone              = try(each.value.time_zone, null)
+
+  # [Minute] [Hour] [Day_of_Month] [Month_of_Year] [Day_of_Week]
+  # Cron examples: https://crontab.guru/examples.html
+  recurrence = try(each.value.recurrence, null)
+}
