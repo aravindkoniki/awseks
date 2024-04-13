@@ -45,11 +45,12 @@ module "eks_launch_template" {
   vpc_security_group_ids = [var.cluster_security_group_id]
 }
 
-# module eks nodes
-module "self_managed_nodes" {
-  source             = "../../module/nodes/eks_managed_node_group"
-  ami_type           = "BOTTLEROCKET_x86_64"
-  launch_template_id = module.eks_launch_template.id
-  cluster_name       = module.control_plane.cluster_name
-  subnet_ids         = ["subnet-0b190b6bb8a5788cd", "subnet-01dac7b80252dea0d", "subnet-06856317c3478f3b6"]
-}
+# # module eks nodes
+# module "self_managed_nodes" {
+#   source             = "../../module/nodes/eks_managed_node_group"
+#   ami_type           = "BOTTLEROCKET_x86_64"
+#   launch_template_id = module.eks_launch_template.id
+#   cluster_name       = module.control_plane.cluster_name
+#   cluster_version    = module.control_plane.cluster_version
+#   subnet_ids         = ["subnet-0b190b6bb8a5788cd", "subnet-01dac7b80252dea0d", "subnet-06856317c3478f3b6"]
+# }
