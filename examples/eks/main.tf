@@ -16,7 +16,7 @@ module "control_plane" {
 
 # user data module
 module "user_data" {
-  source               = "git::https://github.com/aravindkoniki/cloudinit_config.git?ref=main"
+  source               = "git::https://github.com/aravindkoniki/cloudinit_config.git//module?ref=main"
   platform             = "bottlerocket"
   cluster_name         = module.control_plane.cluster_name
   cluster_endpoint     = module.control_plane.cluster_endpoint
@@ -37,12 +37,12 @@ module "user_data" {
 
 # module launch template
 module "eks_launch_template" {
-  source                 = "git::https://github.com/aravindkoniki/awslaunchtemplate.git?ref=main"
+  source                 = "git::https://github.com/aravindkoniki/awslaunchtemplate.git//module?ref=main"
   prefix                 = "eks"
   description            = "EKS launchtemplate"
   name                   = "eks-launchtemaplate"
   user_data              = module.user_data.user_data
-  vpc_security_group_ids = var.cluster_security_group_id
+  vpc_security_group_ids = [var.cluster_security_group_id]
 }
 
 # module eks nodes

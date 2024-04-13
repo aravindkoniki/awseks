@@ -36,3 +36,15 @@ data "aws_subnets" "efa" {
     values = data.aws_ec2_instance_type_offerings.instance_type_offerings[0].locations
   }
 }
+
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    sid     = "EKSNodeAssumeRole"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}

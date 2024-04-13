@@ -14,7 +14,7 @@ resource "aws_eks_node_group" "node_group" {
 
   # Optional
   node_group_name        = var.name
-  node_group_name_prefix = "${var.name == "" ? "eks" : var.name}-"
+  node_group_name_prefix = var.node_group_name_prefix == null ? "eks" : var.node_group_name_prefix
 
   # https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html#launch-template-custom-ami
   ami_type        = var.ami_id != "" ? null : var.ami_type

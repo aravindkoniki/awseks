@@ -3,7 +3,7 @@ resource "aws_iam_role" "node_role" {
   path        = "/"
   description = "Managed Node group IAM role for ${var.cluster_name == null ? "EKS" : var.cluster_name}"
 
-  assume_role_policy    = data.aws_iam_policy_document.assume_role_policy[0].json
+  assume_role_policy    = data.aws_iam_policy_document.assume_role_policy.json
   permissions_boundary  = var.iam_role_permissions_boundary
   force_detach_policies = true
 
@@ -22,7 +22,7 @@ resource "aws_iam_role_policy_attachment" "policy_attachments" {
   ) : k => v }
 
   policy_arn = each.value
-  role       = aws_iam_role.this[0].name
+  role       = aws_iam_role.node_role.name
 }
 
 resource "aws_iam_role_policy_attachment" "additional" {

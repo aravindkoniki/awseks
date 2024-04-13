@@ -98,7 +98,13 @@ variable "desired_size" {
 variable "name" {
   description = "Name of the EKS managed node group"
   type        = string
-  default     = ""
+  default     = null
+}
+
+variable "node_group_name_prefix" {
+    description = "Creates a unique name beginning with the specified prefix. Conflicts with node_group_name"
+  type        = string
+  default     = null
 }
 
 variable "ami_id" {
