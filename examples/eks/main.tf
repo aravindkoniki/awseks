@@ -1,5 +1,5 @@
 locals {
-    cluster_version = "1.29"
+  cluster_version = "1.29"
 }
 
 # module EKS cluster
@@ -8,7 +8,7 @@ module "control_plane" {
   cluster_name                   = upper(var.cluster_name)
   cluster_endpoint_public_access = false
   create_cluster_security_group  = false
-  cluster_version = local.cluster_version
+  cluster_version                = local.cluster_version
   additional_cluster_policy_arns = []
   vpc_id                         = var.vpc_id
   control_plane_subnet_ids       = var.control_plane_subnet_ids
@@ -43,21 +43,21 @@ module "user_data" {
 
 # module launch template
 module "eks_launch_template" {
-  source                 = "git::https://github.com/aravindkoniki/awslaunchtemplate.git//module?ref=main"
-  prefix                 = "lt"
-  description            = "EKS launchtemplate"
-  name                   = "eks-launchtemaplate"
-  user_data              = module.user_data.user_data
-  ami_id                 = data.aws_ami.bottlerocket_ami.id
-  vpc_security_group_ids = [var.cluster_security_group_id]
+  source                               = "git::https://github.com/aravindkoniki/awslaunchtemplate.git//module?ref=main"
+  prefix                               = "lt"
+  description                          = "EKS launchtemplate"
+  name                                 = "eks-launchtemaplate"
+  user_data                            = module.user_data.user_data
+  ami_id                               = data.aws_ami.bottlerocket_ami.id
+  instance_initiated_shutdown_behavior = null
+  vpc_security_group_ids               = [var.cluster_security_group_id]
 }
 
 # module eks nodes
 module "self_managed_nodes" {
-  source             = "../../module/nodes/eks_managed_node_group"
-  ami_type           = "BOTTLEROCKET_x86_64"
-  launch_template_id = module.eks_launch_template.id
-  cluster_name       = module.control_plane.cluster_name
-  cluster_version    = local.cluster_version
-  subnet_ids         = ["subnet-0b190b6bb8a5788cd", "subnet-01dac7b80252dea0d", "subnet-06856317c3478f3b6"]
+  source                  = "../../module/nodes/eks_managed_node_group"
+  launch_template_id      = module.eks_launch_template.id
+  launch_template_version = module.eks_launch_template.latest_version
+  cluster_name            = module.control_plane.cluster_name
+  subnet_ids              = ["subnet-0b190b6bb8a5788cd", "subnet-01dac7b80252dea0d", "subnet-06856317c3478f3b6"]
 }
