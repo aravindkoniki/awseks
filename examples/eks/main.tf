@@ -33,9 +33,6 @@ module "user_data" {
     [settings.kernel]
     lockdown = "integrity"
 
-    [settings.kubernetes.node-labels]
-    "label1" = "foo"
-    "label2" = "bar"
   EOT
 
 }
@@ -50,7 +47,7 @@ module "eks_launch_template" {
   user_data                            = module.user_data.user_data
   ami_id                               = data.aws_ami.bottlerocket_ami.id
   instance_initiated_shutdown_behavior = null
-  vpc_security_group_ids               = [var.cluster_security_group_id]
+  vpc_security_group_ids               = [var.cluster_security_group_id, var.node_security_group_id]
 }
 
 # module eks nodes
@@ -59,5 +56,7 @@ module "self_managed_nodes" {
   launch_template_id      = module.eks_launch_template.id
   launch_template_version = module.eks_launch_template.latest_version
   cluster_name            = module.control_plane.cluster_name
-  subnet_ids              = ["subnet-0b190b6bb8a5788cd", "subnet-01dac7b80252dea0d", "subnet-06856317c3478f3b6"]
+  subnet_ids              = var.node_subnet_ids
+  
+  #tags                    = { "kubernetes.io/cluster/${upper(var.cluster_name)}" = "owned" }
 }

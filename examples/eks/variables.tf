@@ -14,6 +14,12 @@ variable "control_plane_subnet_ids" {
   default     = []
 }
 
+variable "node_subnet_ids" {
+  description = "A list of subnet IDs where the EKS cluster nodes will be provisioned."
+  type        = list(string)
+  default     = []
+}
+
 variable "vpc_id" {
   description = "ID of the VPC where the cluster security group will be provisioned"
   type        = string
@@ -22,6 +28,11 @@ variable "vpc_id" {
 variable "cluster_security_group_id" {
   description = "Existing security group ID to be attached to the cluster"
   type        = string
+}
+
+variable "node_security_group_id" {
+  description = "Existing security group ID to be attached to the cluster"
+  type        = string 
 }
 
 variable "cluster_encryption_kms_key" {
