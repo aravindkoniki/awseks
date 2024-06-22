@@ -2,6 +2,7 @@ locals {
   cluster_version = "1.29"
 }
 
+
 # module EKS cluster
 module "control_plane" {
   source                         = "../../module/control_plane"
@@ -10,12 +11,16 @@ module "control_plane" {
   create_cluster_security_group  = false
   cluster_version                = local.cluster_version
   additional_cluster_policy_arns = []
-  vpc_id                         = var.vpc_id
-  control_plane_subnet_ids       = var.control_plane_subnet_ids
-  cluster_security_group_id      = var.cluster_security_group_id
+  vpc_id                         = module.eks_vpc.vpc_id
+  control_plane_subnet_ids = [
+    module.vpc.subnets_by_name["EKS-CP-SUBNET-1A"].id,
+    module.vpc.subnets_by_name["EKS-CP-SUBNET-1B"].id,
+    module.vpc.subnets_by_name["EKS-CP-SUBNET-1C"].id
+  ]
+  cluster_security_group_id = module.cluster_security_group.security_group_id
   cluster_encryption_config = {
     resources        = ["secrets"]
-    provider_key_arn = "${var.cluster_encryption_kms_key}"
+    provider_key_arn = "${module.kms.key_arn}"
   }
 }
 
@@ -37,7 +42,6 @@ module "user_data" {
 
 }
 
-
 # module launch template
 module "eks_launch_template" {
   source                               = "git::https://github.com/aravindkoniki/awslaunchtemplate.git//module?ref=main"
@@ -47,7 +51,10 @@ module "eks_launch_template" {
   user_data                            = module.user_data.user_data
   ami_id                               = data.aws_ami.bottlerocket_ami.id
   instance_initiated_shutdown_behavior = null
-  vpc_security_group_ids               = [var.cluster_security_group_id, var.node_security_group_id]
+  vpc_security_group_ids = [
+    module.cluster_security_group.security_group_id,
+    module.node_security_group.security_group_id
+  ]
 }
 
 # module eks nodes
@@ -56,7 +63,11 @@ module "self_managed_nodes" {
   launch_template_id      = module.eks_launch_template.id
   launch_template_version = module.eks_launch_template.latest_version
   cluster_name            = module.control_plane.cluster_name
-  subnet_ids              = var.node_subnet_ids
-  
+  subnet_ids = [
+    module.vpc.subnets_by_name["EKS-NODES-SUBNET-2A"].id,
+    module.vpc.subnets_by_name["EKS-NODES-SUBNET-2B"].id,
+    module.vpc.subnets_by_name["EKS-NODES-SUBNET-2C"].id
+  ]
+
   #tags                    = { "kubernetes.io/cluster/${upper(var.cluster_name)}" = "owned" }
 }

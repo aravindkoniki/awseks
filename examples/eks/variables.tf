@@ -3,44 +3,38 @@ variable "region" {
   description = "Region for the resource to deploy"
 }
 
+variable "eks_vpc_name" {
+  description = "Desired name for the VPC resources."
+  type        = string
+}
+
+variable "eks_cidr_block" {
+  description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden."
+  type        = string
+}
+
+variable "eks_secondary_cidr_blocks" {
+  description = "List of secondary CIDR blocks to associate with the VPC to extend the IP Address pool."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_subnets" {
+  description = "A map of subnet with parameters to create subnets with NACL and Route tables"
+}
+
+variable "cluster_security_group" {
+  description = "security group for cluster"
+}
+
+variable "node_security_group" {
+  description = "security group for node"
+}
+
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
 }
-
-variable "control_plane_subnet_ids" {
-  description = "A list of subnet IDs where the EKS cluster control plane (ENIs) will be provisioned. Used for expanding the pool of subnets used by nodes/node groups without replacing the EKS control plane"
-  type        = list(string)
-  default     = []
-}
-
-variable "node_subnet_ids" {
-  description = "A list of subnet IDs where the EKS cluster nodes will be provisioned."
-  type        = list(string)
-  default     = []
-}
-
-variable "vpc_id" {
-  description = "ID of the VPC where the cluster security group will be provisioned"
-  type        = string
-}
-
-variable "cluster_security_group_id" {
-  description = "Existing security group ID to be attached to the cluster"
-  type        = string
-}
-
-variable "node_security_group_id" {
-  description = "Existing security group ID to be attached to the cluster"
-  type        = string 
-}
-
-variable "cluster_encryption_kms_key" {
-  description = "Cluster encryption key"
-  type        = string
-}
-
-
 
 # Tags
 variable "tags" {
