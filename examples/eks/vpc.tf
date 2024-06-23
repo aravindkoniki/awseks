@@ -41,7 +41,7 @@ module "node_security_group" {
 
 # # VPC endpoint
 # module "vpc_endpoint" {
-#   source = "git::https://gitlab.com/paymento/source/iac/terraform-modules/aws/network-components.git//module//vpc-endpoint?ref=master"
+#   source = "git::https://github.com/aravindkoniki/awsnetwork.git//module//module//vpc-endpoint?ref=master"
 #   vpc_id = module.vpc.id
 #   subnet_ids = [
 #     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1a")].id,

@@ -13,9 +13,9 @@ module "control_plane" {
   additional_cluster_policy_arns = []
   vpc_id                         = module.eks_vpc.vpc_id
   control_plane_subnet_ids = [
-    module.vpc.subnets_by_name["EKS-CP-SUBNET-1A"].id,
-    module.vpc.subnets_by_name["EKS-CP-SUBNET-1B"].id,
-    module.vpc.subnets_by_name["EKS-CP-SUBNET-1C"].id
+    module.eks_vpc.subnets_by_name["EKS-CP-SUBNET-1A"].id,
+    module.eks_vpc.subnets_by_name["EKS-CP-SUBNET-1B"].id,
+    module.eks_vpc.subnets_by_name["EKS-CP-SUBNET-1C"].id
   ]
   cluster_security_group_id = module.cluster_security_group.security_group_id
   cluster_encryption_config = {
@@ -32,14 +32,6 @@ module "user_data" {
   cluster_endpoint     = module.control_plane.cluster_endpoint
   cluster_ip_family    = module.control_plane.cluster_ip_family
   cluster_service_cidr = module.control_plane.cluster_service_cidr
-
-  bootstrap_extra_args = <<-EOT
-    # extra args added
-    [settings.kernel]
-    lockdown = "integrity"
-
-  EOT
-
 }
 
 # module launch template
@@ -64,10 +56,9 @@ module "self_managed_nodes" {
   launch_template_version = module.eks_launch_template.latest_version
   cluster_name            = module.control_plane.cluster_name
   subnet_ids = [
-    module.vpc.subnets_by_name["EKS-NODES-SUBNET-2A"].id,
-    module.vpc.subnets_by_name["EKS-NODES-SUBNET-2B"].id,
-    module.vpc.subnets_by_name["EKS-NODES-SUBNET-2C"].id
+    module.eks_vpc.subnets_by_name["EKS-NODES-SUBNET-2A"].id,
+    module.eks_vpc.subnets_by_name["EKS-NODES-SUBNET-2B"].id,
+    module.eks_vpc.subnets_by_name["EKS-NODES-SUBNET-2C"].id
   ]
-
-  #tags                    = { "kubernetes.io/cluster/${upper(var.cluster_name)}" = "owned" }
+  tags = { "kubernetes.io/cluster/${upper(var.cluster_name)}" = "owned" }
 }
