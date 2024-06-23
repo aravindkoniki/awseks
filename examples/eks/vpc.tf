@@ -5,6 +5,8 @@ module "eks_vpc" {
   cidr_block            = var.eks_cidr_block
   secondary_cidr_blocks = var.eks_secondary_cidr_blocks
   subnets               = var.eks_subnets
+  create_igw            = true
+  nat_gateways          = var.nat_gateways
   tags                  = var.tags
 }
 
@@ -35,3 +37,37 @@ module "node_security_group" {
     module.eks_vpc
   ]
 }
+
+
+# # VPC endpoint
+# module "vpc_endpoint" {
+#   source = "git::https://gitlab.com/paymento/source/iac/terraform-modules/aws/network-components.git//module//vpc-endpoint?ref=master"
+#   vpc_id = module.vpc.id
+#   subnet_ids = [
+#     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1a")].id,
+#     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1b")].id,
+#     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1c")].id
+#   ]
+#   security_group_ids = [module.security_groups_for_vpc_endpoint.security_group_id]
+#   endpoints = {
+#     s3 = {
+#       service      = "s3",
+#       service_type = "Interface",
+#       policy       = null,
+#       tags         = { Name = upper("pt-hub-dmz-uat-s3-vpc-endpoint-1") }
+#     },
+#     sts = {
+#       service             = "sts",
+#       service_type        = "Interface",
+#       private_dns_enabled = true,
+#       policy              = null,
+#       tags                = { Name = upper("pt-hub-dmz-uat-sts-vpc-endpoint-2") }
+#     }
+#   }
+#   tags = var.tags
+#   depends_on = [
+#     module.vpc,
+#     module.dmz_subnets,
+#     module.security_groups_for_vpc_endpoint
+#   ]
+# }

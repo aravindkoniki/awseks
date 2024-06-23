@@ -13,6 +13,10 @@ variable "eks_cidr_block" {
   type        = string
 }
 
+variable "nat_gateways" {
+  description = "NAT Gateway configuration"
+}
+
 variable "eks_secondary_cidr_blocks" {
   description = "List of secondary CIDR blocks to associate with the VPC to extend the IP Address pool."
   type        = list(string)
