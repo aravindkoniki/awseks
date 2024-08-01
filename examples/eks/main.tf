@@ -34,26 +34,16 @@ module "user_data" {
   cluster_service_cidr = module.control_plane.cluster_service_cidr
 }
 
-# module launch template
-module "eks_launch_template" {
-  source                               = "git::https://github.com/aravindkoniki/awslaunchtemplate.git//module?ref=main"
-  prefix                               = "lt"
-  description                          = "EKS launchtemplate"
-  name                                 = "eks-launchtemaplate"
-  user_data                            = module.user_data.user_data
-  ami_id                               = data.aws_ami.bottlerocket_ami.id
-  instance_initiated_shutdown_behavior = null
-  vpc_security_group_ids = [
-    module.node_security_group.security_group_id
-  ]
-}
-
 # module eks nodes
 module "self_managed_nodes" {
-  source                  = "../../module/nodes/eks_managed_node_group"
-  launch_template_id      = module.eks_launch_template.id
-  launch_template_version = module.eks_launch_template.latest_version
-  cluster_name            = module.control_plane.cluster_name
+  source                     = "../../module/nodes/eks_managed_node_group"
+  use_custom_launch_template = false
+  cluster_name               = module.control_plane.cluster_name
+  ami_id                     = data.aws_ami.bottlerocket_ami.id
+  instance_types             = ["t3.medium"]
+  min_size                   = 3
+  max_size                   = 3
+  desired_size               = 3
   subnet_ids = [
     module.eks_vpc.subnets_by_name["EKS-NODES-SUBNET-2A"].id,
     module.eks_vpc.subnets_by_name["EKS-NODES-SUBNET-2B"].id,
