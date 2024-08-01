@@ -13,10 +13,6 @@ variable "eks_cidr_block" {
   type        = string
 }
 
-variable "nat_gateways" {
-  description = "NAT Gateway configuration"
-}
-
 variable "eks_secondary_cidr_blocks" {
   description = "List of secondary CIDR blocks to associate with the VPC to extend the IP Address pool."
   type        = list(string)
@@ -33,6 +29,10 @@ variable "cluster_security_group" {
 
 variable "node_security_group" {
   description = "security group for node"
+}
+
+variable "security_group_for_vpc_endpoint" {
+  description = "security group for vpc endpoints"
 }
 
 variable "cluster_name" {

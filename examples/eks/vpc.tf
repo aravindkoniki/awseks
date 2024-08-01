@@ -36,11 +36,23 @@ module "node_security_group" {
   ]
 }
 
+module "security_groups_for_vpc_endpoint" {
+  source                     = "git::https://github.com/aravindkoniki/awsnetwork.git//module//security_groups?ref=main"
+  security_group_name        = var.security_group_for_vpc_endpoint["name"]
+  security_group_description = var.security_group_for_vpc_endpoint["description"]
+  vpc_id                     = module.eks_vpc.vpc_id
+  nsg_ingress_rules          = var.security_group_for_vpc_endpoint["nsg_ingress_rules"]
+  nsg_egress_rules           = var.security_group_for_vpc_endpoint["nsg_egress_rules"]
+  tags                       = var.tags
+  depends_on = [
+    module.eks_vpc
+  ]
+}
 
 # VPC endpoint
 module "vpc_endpoint" {
-  source = "git::https://github.com/aravindkoniki/awsnetwork.git//module//module//vpc-endpoint?ref=master"
-  vpc_id = module.vpc.id
+  source = "git::https://github.com/aravindkoniki/awsnetwork.git//module//vpc_endpoints?ref=main"
+  vpc_id = module.eks_vpc.vpc_id
   subnet_ids = [
     module.eks_vpc.subnets_by_name[upper("EKS-NODES-SUBNET-2A")].id,
     module.eks_vpc.subnets_by_name[upper("EKS-NODES-SUBNET-2B")].id,
@@ -137,8 +149,7 @@ module "vpc_endpoint" {
   }
   tags = var.tags
   depends_on = [
-    module.vpc,
-    module.dmz_subnets,
+    module.eks_vpc,
     module.security_groups_for_vpc_endpoint
   ]
 }
