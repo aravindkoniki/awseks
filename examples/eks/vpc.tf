@@ -5,8 +5,6 @@ module "eks_vpc" {
   cidr_block            = var.eks_cidr_block
   secondary_cidr_blocks = var.eks_secondary_cidr_blocks
   subnets               = var.eks_subnets
-  create_igw            = true
-  nat_gateways          = var.nat_gateways
   tags                  = var.tags
 }
 
@@ -39,35 +37,108 @@ module "node_security_group" {
 }
 
 
-# # VPC endpoint
-# module "vpc_endpoint" {
-#   source = "git::https://github.com/aravindkoniki/awsnetwork.git//module//module//vpc-endpoint?ref=master"
-#   vpc_id = module.vpc.id
-#   subnet_ids = [
-#     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1a")].id,
-#     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1b")].id,
-#     module.dmz_subnets.subnets_by_name[upper("pt-hub-dmz-uat-web-subnet-1c")].id
-#   ]
-#   security_group_ids = [module.security_groups_for_vpc_endpoint.security_group_id]
-#   endpoints = {
-#     s3 = {
-#       service      = "s3",
-#       service_type = "Interface",
-#       policy       = null,
-#       tags         = { Name = upper("pt-hub-dmz-uat-s3-vpc-endpoint-1") }
-#     },
-#     sts = {
-#       service             = "sts",
-#       service_type        = "Interface",
-#       private_dns_enabled = true,
-#       policy              = null,
-#       tags                = { Name = upper("pt-hub-dmz-uat-sts-vpc-endpoint-2") }
-#     }
-#   }
-#   tags = var.tags
-#   depends_on = [
-#     module.vpc,
-#     module.dmz_subnets,
-#     module.security_groups_for_vpc_endpoint
-#   ]
-# }
+# VPC endpoint
+module "vpc_endpoint" {
+  source = "git::https://github.com/aravindkoniki/awsnetwork.git//module//module//vpc-endpoint?ref=master"
+  vpc_id = module.vpc.id
+  subnet_ids = [
+    module.eks_vpc.subnets_by_name[upper("EKS-NODES-SUBNET-2A")].id,
+    module.eks_vpc.subnets_by_name[upper("EKS-NODES-SUBNET-2B")].id,
+    module.eks_vpc.subnets_by_name[upper("EKS-NODES-SUBNET-2C")].id
+  ]
+  security_group_ids = [module.security_groups_for_vpc_endpoint.security_group_id]
+  endpoints = {
+    s3 = {
+      service      = "s3",
+      service_type = "Interface",
+      policy       = null,
+      tags         = { Name = upper("eks-s3-vpc-endpoint-1") }
+    },
+    sts = {
+      service             = "sts",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-sts-vpc-endpoint-2") }
+    },
+    ecr_dkr = {
+      service             = "ecr.dkr",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-ecr-dkr-vpc-endpoint-3") }
+    },
+    sqs = {
+      service             = "sqs",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-sqs-vpc-endpoint-4") }
+    },
+    elasticloadbalancing = {
+      service             = "elasticloadbalancing",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-elasticloadbalancing-vpc-endpoint-5") }
+    },
+    ec2 = {
+      service             = "ec2",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-ec2-vpc-endpoint-6") }
+    },
+    ecr_api = {
+      service             = "ecr.api",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-ecr-api-vpc-endpoint-7") }
+    },
+    logs = {
+      service             = "logs",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-logs-vpc-endpoint-8") }
+    },
+    ssm = {
+      service             = "ssm",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-ssm-vpc-endpoint-9") }
+    },
+    eks_auth = {
+      service             = "eks-auth",
+      service_type        = "Interface",
+      private_dns_enabled = true,
+      policy              = null,
+      tags                = { Name = upper("eks-eks-auth-vpc-endpoint-10") }
+    },
+    s3_gateway = {
+      service      = "s3",
+      service_type = "Gateway",
+      policy       = null,
+      route_table_ids = [
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_cp_1a"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_cp_1b"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_cp_1c"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_nodes_2a"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_nodes_2b"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_nodes_2c"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_pod_3a"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_pod_3b"]}",
+        "${module.eks_vpc.route_table_id_subnet_key["subnet_pod_3c"]}",
+      ],
+      tags = { Name = upper("eks-s3-gateway-vpc-endpoint-12") }
+    }
+  }
+  tags = var.tags
+  depends_on = [
+    module.vpc,
+    module.dmz_subnets,
+    module.security_groups_for_vpc_endpoint
+  ]
+}

@@ -44,7 +44,6 @@ module "eks_launch_template" {
   ami_id                               = data.aws_ami.bottlerocket_ami.id
   instance_initiated_shutdown_behavior = null
   vpc_security_group_ids = [
-    module.cluster_security_group.security_group_id,
     module.node_security_group.security_group_id
   ]
 }
