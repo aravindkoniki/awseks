@@ -1,7 +1,7 @@
 
 ## https://docs.aws.amazon.com/eks/latest/userguide/security-iam-awsmanpol.html
 resource "aws_iam_role" "cluster_role" {
-  name                  = "${upper(var.cluster_name)}_SERVICE_ROLE"
+  name                  = "${upper(var.cluster_name)}_CLUSTER_ROLE"
   path                  = "/"
   description           = "IAM role for the EKS Cluster"
   assume_role_policy    = data.aws_iam_policy_document.cluster_assume_role_policy.json

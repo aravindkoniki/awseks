@@ -92,3 +92,13 @@ output "cluster_identity_providers" {
   description = "Map of attribute maps for all EKS identity providers enabled"
   value       = aws_eks_identity_provider_config.indentity_provider
 }
+
+output "cluster_service_cidr" {
+  description = "The CIDR block where Kubernetes pod and service IP addresses are assigned from"
+  value       = try(aws_eks_cluster.control_plane.kubernetes_network_config[0].service_ipv4_cidr, aws_eks_cluster.control_plane.kubernetes_network_config[0].service_ipv6_cidr, null)
+}
+
+output "cluster_ip_family" {
+  description = "The IP family used by the cluster (e.g. `ipv4` or `ipv6`)"
+  value       = try(aws_eks_cluster.control_plane.kubernetes_network_config[0].ip_family, null)
+}
